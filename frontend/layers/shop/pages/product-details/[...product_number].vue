@@ -3,13 +3,13 @@
 </template>
 
 <script>
-import { useStore } from "@/store";
+// import { useStore } from "@/store";
 
 export default {
     setup() {
-        // const appStore = useAppStore();
+        // const store = useStore();
         const productNumber = useRoute().params.product_number
-        console.log('store', useStore())
+        // console.log('store', store)
         return {productNumber}
     }
 };

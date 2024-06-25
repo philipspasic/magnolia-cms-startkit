@@ -9,9 +9,8 @@
 
 <script>
 import { EditablePage } from "@magnolia/vue-editor";
-import { useAppStore } from "@/store/app";
-import { usePagesStore } from "@/store/pages";
-import config from "@/config/magnolia.config";
+// import { useStore } from "@/store";
+import config from "./config/magnolia.config";
 
 function getCurrentLanguage(url, languages) {
   return languages.find(language => url.indexOf("/" + language) > -1) || languages[0];
@@ -39,9 +38,11 @@ export default {
   async setup() {
     const runtimeConfig = useRuntimeConfig();
     const fullPath = useRoute().fullPath?.split('?')[0];
-    const appStore = useAppStore();
-    const pagesStore = usePagesStore();
+    // const store = useStore();
+    const store = null
     const i18n = useI18n({ useScope: "global" });
+
+    console.log(store)
 
     // Load paths, see .env and nuxt.config.js files
     const nodeName = "/" + runtimeConfig.public.NUXT_APP_MGNL_SITE;
@@ -56,7 +57,7 @@ export default {
     try {
       content = await useAsyncData(fullPath, async () => {
         // Get header and footer from index page
-        if(fullPath !== "/" && !pagesStore.sharedComponents) {
+        if(fullPath !== "/" && !store?.sharedComponents) {
           let path = nodeName + "/";
           if (!isDefaultLanguage) {
             path = path.replace("/" + currentLanguage, "");
@@ -65,7 +66,7 @@ export default {
             setURLSearchParams(pagesApi + path, "lang=" + currentLanguage)
           );
 
-          pagesStore.$patch({sharedComponents: {
+          store.$patch({sharedComponents: {
             header: indexPage.header,
             footer: indexPage.footer
           }});
@@ -88,8 +89,6 @@ export default {
     } catch (error) {
       throw createError(error);
     }
-
-    console.log(appStore.loaded)
 
     return { content, pagePath, templateAnnotationsApi };
   },

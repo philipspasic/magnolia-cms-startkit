@@ -1,2 +1,5 @@
 export default defineNuxtConfig({
+  extends: [
+    "./"
+  ],
 });
