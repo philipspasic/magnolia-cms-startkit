@@ -21,7 +21,7 @@
         </v-col>
         <v-col cols="3" class="page-header__end d-flex align-center justify-end">
           <v-btn 
-            v-if="button && (button.type.field === 'url' && button.type.url) || (button.type.field === 'link' && button.type.link)"
+            v-if="button && (button?.type.field === 'url' && button?.type.url) || (button?.type.field === 'link' && button?.type.link)"
             variant="outlined" 
             color="black" 
             :href="button.type.field === 'url' && button.type.url || ''"

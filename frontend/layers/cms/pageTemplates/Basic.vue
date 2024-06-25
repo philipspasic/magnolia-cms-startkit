@@ -1,19 +1,19 @@
 <template>
   <div>
-    <EditableArea v-if="header || (sharedContent && sharedContent.header)" :content="header || sharedContent.header" />
+    <EditableArea v-if="header || (sharedComponents && sharedComponents.header)" :content="header || sharedComponents.header" />
 
     <main>
       <EditableArea v-if="main" :content="main" />
     </main>
 
-    <EditableArea v-if="footer || (sharedContent && sharedContent.footer)" :content="footer || sharedContent.footer" />
+    <EditableArea v-if="footer || (sharedComponents && sharedComponents.footer)" :content="footer || sharedComponents.footer" />
   </div>
 </template>
 
 <script>
 import { EditableArea } from "@magnolia/vue-editor";
 import { mapState } from "pinia";
-import { useAppStore } from "@/store/app";
+import { usePagesStore } from "@/store/pages";
 
 export default {
   name: "BasicPage",
@@ -22,7 +22,7 @@ export default {
   },
   props: ["title", "metadata", "main", "header", "footer"],
   computed: {
-    ...mapState(useAppStore, ['sharedContent'])
+    ...mapState(usePagesStore, ['sharedComponents'])
   }
 };
 </script>

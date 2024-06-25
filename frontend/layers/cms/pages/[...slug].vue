@@ -10,7 +10,8 @@
 <script>
 import { EditablePage } from "@magnolia/vue-editor";
 import { useAppStore } from "@/store/app";
-import config from "@/magnolia.config";
+import { usePagesStore } from "@/store/pages";
+import config from "@/config/magnolia.config";
 
 function getCurrentLanguage(url, languages) {
   return languages.find(language => url.indexOf("/" + language) > -1) || languages[0];
@@ -37,14 +38,15 @@ export default {
 
   async setup() {
     const runtimeConfig = useRuntimeConfig();
-    const fullPath = useRoute().fullPath;
+    const fullPath = useRoute().fullPath?.split('?')[0];
     const appStore = useAppStore();
+    const pagesStore = usePagesStore();
     const i18n = useI18n({ useScope: "global" });
 
     // Load paths, see .env and nuxt.config.js files
-    const nodeName = "/" + runtimeConfig.NUXT_APP_MGNL_SITE;
-    const pagesApi = runtimeConfig.MGNL_API_PAGES;
-    const templateAnnotationsApi = runtimeConfig.MGNL_API_TEMPLATES;
+    const nodeName = "/" + runtimeConfig.public.NUXT_APP_MGNL_SITE;
+    const pagesApi = runtimeConfig.public.MGNL_API_PAGES;
+    const templateAnnotationsApi = runtimeConfig.public.MGNL_API_TEMPLATES;
 
     const currentLanguage = getCurrentLanguage(fullPath, i18n.availableLocales);
     const isDefaultLanguage = currentLanguage === i18n.availableLocales[0];
@@ -54,7 +56,7 @@ export default {
     try {
       content = await useAsyncData(fullPath, async () => {
         // Get header and footer from index page
-        if(fullPath !== "/" && !appStore.sharedContent) {
+        if(fullPath !== "/" && !pagesStore.sharedComponents) {
           let path = nodeName + "/";
           if (!isDefaultLanguage) {
             path = path.replace("/" + currentLanguage, "");
@@ -62,17 +64,17 @@ export default {
           const indexPage = await $fetch(
             setURLSearchParams(pagesApi + path, "lang=" + currentLanguage)
           );
-  
-          appStore.$patch({sharedContent: {
+
+          pagesStore.$patch({sharedComponents: {
             header: indexPage.header,
             footer: indexPage.footer
           }});
         }
-  
+
         if (!isDefaultLanguage) {
           pagePath = pagePath.replace("/" + currentLanguage, "");
         }
-  
+
         return $fetch(
           setURLSearchParams(pagesApi + pagePath, "lang=" + currentLanguage)
         );
@@ -83,9 +85,11 @@ export default {
       if(!content.value) {
         throw createError({ statusCode: 404, statusMessage: "Page Not Found" });
       }
-    } catch {
-      throw createError({ statusCode: 500, statusMessage: "Magnolia is not reachable" });
+    } catch (error) {
+      throw createError(error);
     }
+
+    console.log(appStore.loaded)
 
     return { content, pagePath, templateAnnotationsApi };
   },
